@@ -1,49 +1,13 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { Provider } from 'react-redux';
-import store from '../store';
-import App from '../App';
-import AuthProvider from '../context/auth';
-import SocketProvider from '../context/socket';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import { server } from '../mocks/server';
-import { useAuth0 } from '@auth0/auth0-react';
-import ResizeObserver from 'resize-observer-polyfill';
-global.ResizeObserver = ResizeObserver;
+import { renderApp } from '..//mocks';
 
 beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-window.ResizeObserver = ResizeObserver;
-
-const user = {
-  email: 'foo@test.com',
-  nickname: 'testymctesterson',
-  email_verified: true,
-  sub: 'google-oauth2|12345678901234',
-  isAuthenticated: true,
-};
-
-jest.mock('@auth0/auth0-react');
-
-beforeEach(() => {
-  (useAuth0 as jest.Mock).mockReturnValue({
-    isAuthenticated: true,
-    user,
-    // eslint-disable-next-line no-unused-labels
-    getIdTokenClaims: jest.fn().mockReturnValue({ __raw: undefined }),
-  });
-
-  render(
-    <Provider store={store()}>
-      <AuthProvider>
-        <SocketProvider>
-          <App />
-        </SocketProvider>
-      </AuthProvider>
-    </Provider>
-  );
-});
+beforeEach(renderApp);
 
 describe('Testing core behaviors of app', () => {
   it("Should properly render the application's landing page components", async () => {
