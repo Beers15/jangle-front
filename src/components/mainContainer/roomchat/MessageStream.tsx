@@ -40,15 +40,14 @@ const MessageStream = ({ setRoomMessages, rooms }: MessageStreamProps) => {
   useEffect(() => {
     (async () => {
       let config = await getAuthHeader();
-
+      console.log("FIRE@!")
       try {
         let res = await axios.get(
           `${process.env.REACT_APP_API_SERVER}/messages/${currentRoom}`, config
         );
-        if (res.data.length > 0) {
-          setRoomMessages({ messages: res.data, roomname: `${currentRoom}` });
-        }
-          
+     
+        setRoomMessages({ messages: res.data, roomname: `${currentRoom}` });
+ 
         let messages = rooms.get(`${currentRoom}`);
         if(messages) setMessages(messages);
       } catch (err) {
