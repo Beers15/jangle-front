@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { IconButton, Box, Menu } from '@mui/material';
 import CreateRoomForm from './CreateRoomForm';
 import { createTheme, ThemeProvider, Theme } from '@mui/material/styles';
@@ -14,15 +14,23 @@ const theme: Theme = createTheme({
 });
 
 const CreateRoom = (): JSX.Element => {
+  const mounted = useRef<boolean>(false);
+
+  useEffect(() => {
+    mounted.current = true;
+
+    return () => { mounted.current = false; };
+  });
+
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const open = Boolean(anchorEl);
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
-    setAnchorEl(e.currentTarget);
+    mounted.current && setAnchorEl(e.currentTarget);
   };
 
   const handleClose = (): void => {
-    setAnchorEl(null);
+    mounted.current && setAnchorEl(null);
   };
 
   return (
@@ -42,6 +50,7 @@ const CreateRoom = (): JSX.Element => {
       </Box>
       <Menu
         anchorEl={anchorEl}
+        keepMounted={true}
         open={open}
         onClose={handleClose}
         PaperProps={{

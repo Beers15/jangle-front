@@ -1,5 +1,4 @@
-import { useEffect, useContext } from 'react';
-import { useStateIfMounted } from 'use-state-if-mounted';
+import { useEffect, useContext, useRef, useState } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
@@ -7,7 +6,6 @@ import { TreeView } from '@mui/lab';
 import { createTheme, ThemeProvider, Theme } from '@mui/material/styles';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { useAuth0 } from '@auth0/auth0-react';
 import { setRooms, SetRoomsAction, Room } from '../../../../store/actions';
 import { AuthContext } from '../../../../context/auth';
 import { SocketContext } from '../../../../context/socket';
@@ -29,27 +27,31 @@ interface RoomsProps extends LeftSidebarComponentsProps {
 }
 
 const Rooms = ({ setRooms, joinRoom, getDirectRoomsForUser }: RoomsProps): JSX.Element => {
+  let mounted = useRef<boolean>(false);
+
   const { nickname, getAuthHeader } = useContext(AuthContext);
   const { currentRoom } = useContext(SocketContext) || {};
 
-  const [publicRooms, setPublicRooms] = useStateIfMounted<Room[]>([]);
-  const [directMsgRooms, setDirectMsgRooms] = useStateIfMounted<Room[]>([]);
+  const [publicRooms, setPublicRooms] = useState<Room[]>([]);
+  const [directMsgRooms, setDirectMsgRooms] = useState<Room[]>([]);
+
+  useEffect(() => {
+    mounted.current = true;
+    return (() => { mounted.current = false } )
+  }, []);
 
   useEffect(() => {
     (async () => {
       let res = null;
       const config = await getAuthHeader();
-
       try {
         res = await axios.get(`${process.env.REACT_APP_API_SERVER}/rooms`, config);
-
+        
         setRooms(res.data);
-        setPublicRooms(
-          res.data.filter((room: Room) =>
-            !room.password && room.users?.length === 0 ? room : false
-          )
-        );
-        setDirectMsgRooms(getDirectRoomsForUser(res.data))
+        mounted.current && setPublicRooms(
+          res.data.filter((room: Room) => !room.password && room.users?.length === 0 ? room : false )
+        ) 
+        mounted.current && setDirectMsgRooms(getDirectRoomsForUser(res.data))
       } catch (err) {
         console.log(err);
       }

@@ -9,6 +9,18 @@ import ResizeObserver from 'resize-observer-polyfill';
 global.ResizeObserver = ResizeObserver;
 window.ResizeObserver = ResizeObserver;
 
+jest.mock('socket.io-client', () => {
+  return {
+    io: jest.fn().mockImplementation(() => {
+      return {
+        on: jest.fn(),
+        emit: jest.fn(),
+        off: jest.fn()
+      };
+    })
+  }
+});
+
 jest.mock('@auth0/auth0-react');
 
 export const renderApp = () => {

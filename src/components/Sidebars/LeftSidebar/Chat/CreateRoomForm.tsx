@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   MenuItem,
   InputBase,
@@ -12,7 +12,6 @@ import axios from 'axios';
 import { AuthContext } from '../../../../context/auth';
 import { SocketContext } from '../../../../context/socket';
 import swal from 'sweetalert';
-
 
 const theme: Theme = createTheme({
   palette: {
@@ -29,10 +28,11 @@ interface CreateRoomFormProps {
 const CreateRoomForm = ({ handleClose }: CreateRoomFormProps): JSX.Element => {
   const { nickname, getAuthHeader } = useContext(AuthContext);
   const { socket, setCurrentRoom } = useContext(SocketContext) || {};
+  const [ roomname, setRoomname] = useState<string>('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-    await addRoomToServer(e.currentTarget.roomname.value);
+    await addRoomToServer(roomname);
     handleClose();
   };
 
@@ -81,14 +81,18 @@ const CreateRoomForm = ({ handleClose }: CreateRoomFormProps): JSX.Element => {
         <Divider style={{ backgroundColor: '#99aab5' }} />
         <MenuItem>
           <InputBase
+            id="roomname"
+            data-testid="roomname-input"
             name="roomname"
             placeholder="Room Name"
             sx={{ color: 'white' }}
+            onChange={(e) => setRoomname(e.target.value)}
             required
           />
         </MenuItem>
         <div style={{display: 'flex', justifyContent: 'center' }}>
         <Button
+          data-testid="room-submit-btn"
           variant="contained"
           size="small"
           id="room-submit-btn"
