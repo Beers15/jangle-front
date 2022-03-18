@@ -54,8 +54,7 @@
     "socket.io-client": "^4.4.0",
     "styled-components": "^5.3.3",
     "sweetalert": "^2.1.2",
-    "typescript": "^4.5.5",
-    "use-state-if-mounted": "^1.0.4"
+    "typescript": "^4.5.5"
   },
   "scripts": {
     "dev": "react-scripts start",

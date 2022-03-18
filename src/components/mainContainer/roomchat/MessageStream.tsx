@@ -40,14 +40,12 @@ const MessageStream = ({ setRoomMessages, rooms }: MessageStreamProps) => {
   useEffect(() => {
     (async () => {
       let config = await getAuthHeader();
-
       try {
         let res = await axios.get(
           `${process.env.REACT_APP_API_SERVER}/messages/${currentRoom}`, config
         );
-        if (res.data.length > 0) {
-          setRoomMessages({ messages: res.data, roomname: `${currentRoom}` });
-        }
+        
+        setRoomMessages({ messages: res.data, roomname: `${currentRoom}` });  
           
         let messages = rooms.get(`${currentRoom}`);
         if(messages) setMessages(messages);
@@ -71,7 +69,8 @@ const MessageStream = ({ setRoomMessages, rooms }: MessageStreamProps) => {
       {messages && messages.length >= 1 && (
         <div className="message-container" data-testid="message-stream">
           {messages.map((msg: Message, idx) => {
-              let date = new Date(msg.timestamp)
+            let date = new Date(msg.timestamp);
+
             return (
               <React.Fragment key={idx}>
                 <div
@@ -88,6 +87,7 @@ const MessageStream = ({ setRoomMessages, rooms }: MessageStreamProps) => {
                     {msg.username}
                   </Typography>
                   <p
+                    data-testid={`message-${msg.content}`}
                     className={
                       msg.username === username
                         ? 'myChatMessage'

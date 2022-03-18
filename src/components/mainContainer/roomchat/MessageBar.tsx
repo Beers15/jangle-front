@@ -1,4 +1,4 @@
-import { useContext, FormEvent } from 'react';
+import { useContext, FormEvent, useState } from 'react';
 import { Paper, InputBase } from '@mui/material';
 import { SocketContext } from '../../../context/socket';
 import { useAuth0 } from '@auth0/auth0-react';
@@ -11,17 +11,15 @@ const MessageBar = ({ scrollOnNewMessage }: MessageBarProps) => {
   const { socket, currentRoom } = useContext(SocketContext) || {};
   const { user } = useAuth0();
 
+  const [message, setMessage] = useState<string>('');
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const target = e.target as typeof e.target & {
-      message: { value: string };
-    };
-    
-    let content = target.message.value;
+    let content = message;
     let timeElapsed = Date.now();
     let date = new Date(timeElapsed);
-
+    
     try {
       if(socket) {
         socket.emit('message', {
@@ -38,7 +36,7 @@ const MessageBar = ({ scrollOnNewMessage }: MessageBarProps) => {
       console.log(err);
     }
 
-    target.message.value = '';
+    setMessage('');
   };
   if(currentRoom) {
     return (
@@ -46,6 +44,7 @@ const MessageBar = ({ scrollOnNewMessage }: MessageBarProps) => {
         <Paper
           className="msgPaper"
           onSubmit={handleSubmit}
+          data-testid="message-bar-form"
           component="form"
           sx={{
             p: '2px 4px',
@@ -56,8 +55,10 @@ const MessageBar = ({ scrollOnNewMessage }: MessageBarProps) => {
         >
           <InputBase
             className="msgInput"
-            name="message"
+            data-testid="message-bar-input"
+            onChange={(e) => { setMessage(e.target.value) }}
             sx={{ ml: 1, flex: 1, color: 'white' }}
+            value={message}
             placeholder="Message"
             inputProps={{ 'aria-label': 'send message' }}
           />
